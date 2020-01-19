@@ -31,4 +31,4 @@ RUN apk --update add --virtual .build-deps \
 RUN pip3 install ansible==${ANSIBLE_VERSION}
 
 # Install ansistrano.
-RUN ansible-galaxy install ansistrano.deploy ansistrano.rollback
+RUN ansible-galaxy install ansistrano.deploy,${ANSISTRANO_DEPLOY_VERSION} ansistrano.rollback,${ANSISTRANO_ROLLBACK_VERSION}
