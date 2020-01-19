@@ -1,3 +1,5 @@
+ARG ANSIBLE_VERSION=2.9.3
+
 FROM aroq/toolbox
 
 COPY Dockerfile.packages.txt /etc/apk/packages.txt
@@ -19,12 +21,12 @@ RUN apk --update add --virtual .build-deps \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     rm -r /usr/lib/python*/ensurepip && \
     pip3 install --no-cache --upgrade pip setuptools wheel && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi \
+    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     apk del .build-deps && \
     rm -rf /var/cache/apk/*
 
 # Install ansible.
-RUN pip3 install ansible==2.9.3
+RUN pip3 install ansible==${ANSIBLE_VERSION}
 
 # Install ansistrano.
 RUN ansible-galaxy install ansistrano.deploy ansistrano.rollback
