@@ -13,7 +13,7 @@ RUN chown root:root /root/.ssh/config && chmod 600 /root/.ssh/config
 # This hack is widely applied to avoid python printing issues in docker containers.
 ENV PYTHONUNBUFFERED=1
 
-# Install Python & pip
+# Install Python, pip & Ansible
 RUN apk --update add --virtual .build-deps \
       python3-dev \
       libffi-dev \
@@ -22,13 +22,13 @@ RUN apk --update add --virtual .build-deps \
     python3 -m ensurepip && \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --no-cache --upgrade pip setuptools wheel && \
+    pip3 install --no-cache --upgrade pip \
+      setuptools
+      wheel \
+      ansible==${ANSIBLE_VERSION} && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
     apk del .build-deps && \
     rm -rf /var/cache/apk/*
-
-# Install ansible.
-RUN pip3 install ansible==${ANSIBLE_VERSION}
 
 # Install ansistrano.
 RUN ansible-galaxy install ansistrano.deploy,${ANSISTRANO_DEPLOY_VERSION} ansistrano.rollback,${ANSISTRANO_ROLLBACK_VERSION}
