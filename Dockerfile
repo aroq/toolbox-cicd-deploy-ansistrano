@@ -23,7 +23,7 @@ RUN apk --update add --virtual .build-deps \
     if [ ! -e /usr/bin/python ]; then ln -sf python3 /usr/bin/python ; fi && \
     rm -r /usr/lib/python*/ensurepip && \
     pip3 install --no-cache --upgrade pip \
-      setuptools
+      setuptools \
       wheel \
       ansible==${ANSIBLE_VERSION} && \
     if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
