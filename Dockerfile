@@ -1,6 +1,8 @@
 FROM aroq/toolbox
 
-ARG ANSIBLE_VERSION=2.9.3
+ENV ANSIBLE_VERSION=2.9.3
+ENV ANSISTRANO_DEPLOY_VERSION=3.4.0
+ENV ANSISTRANO_ROLLBACK_VERSION=3.0.0
 
 COPY Dockerfile.packages.txt /etc/apk/packages.txt
 RUN apk add --no-cache --update $(grep -v '^#' /etc/apk/packages.txt)
