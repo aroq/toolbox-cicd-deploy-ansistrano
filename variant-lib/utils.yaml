@@ -1,0 +1,104 @@
+#!/usr/bin/env variant
+# vi: ft=yaml
+#
+
+parameters:
+- name: artifact_file
+  default: "artifact.tar.gz"
+
+tasks:
+  artifact_repo:
+    script: |
+      if [ -z ${TOOLBOX_GITLAB_CI_RW_USER_TOKEN+x} ]; then
+        git config --get remote.origin.url
+      else
+        REPO_ADDRESS_ARRAY=(${CI_REPOSITORY_URL//@/ })
+        echo "https://${TOOLBOX_GITLAB_CI_RW_USER_NAME}:${TOOLBOX_GITLAB_CI_RW_USER_TOKEN}@${REPO_ADDRESS_ARRAY[1]}"
+      fi
+
+  commands:
+    parameters:
+    - name: artifact_repo
+      type: string
+      default: ""
+    - name: artifact_ref
+      type: string
+      default: ""
+    - name: working_dir
+      default: .artifact
+    - name: artifact_dir
+      default: .artifact
+
+    tasks:
+      prepare:
+        tasks:
+          artifact:
+            steps:
+            - task: core.exec
+              arguments:
+                title: Prepare artifact
+                cmd: |
+                  rm -fR {{ .working_dir }}/artifact
+                  git clone --quiet -b {{ .artifact_ref }} --single-branch --depth 1 {{ .artifact_repo }} {{ .working_dir }}/artifact > /dev/null;
+                  rm -rf {{ .working_dir }}/artifact/.git;
+                  tar -czf {{ .artifact_dir }}/{{ .artifact_file }} -C {{ .working_dir }}/artifact .;
+  tools:
+    tasks:
+      ansible:
+        parameters:
+        - name: ansible_dir
+          type: string
+          default: toolbox/ansible
+        - name: ansible_config_file
+          type: string
+          default: ansible.cfg
+        tasks:
+          playbook:
+            parameters:
+            - name: title
+              type: string
+              default: "Ansible playbook"
+            - name: executable
+              type: string
+              default: ansible-playbook
+            - name: playbook
+              type: string
+            - name: inventory_file
+              type: string
+            - name: vars
+              type: string
+              default: "{}"
+            steps:
+            - task: core.exec
+              arguments:
+                title: "{{ .title }}"
+                cmd: |
+                  cd {{ .ansible_dir }};
+                  ANSIBLE_CONFIG='{{ .ansible_config_file }}' \
+                  ANSIBLE_ROLES_PATH='/root/.ansible/roles' \
+                  {{ .executable }} {{ .playbook }} \
+                    -i {{ .inventory_file }} \
+                    -e '{{ .vars }}';
+      ansistrano:
+        parameters:
+        - name: artifact_dir
+          default: .artifact
+        - name: ansistrano_deploy_to
+          type: string
+        - name: artifact_dir_prefix
+          type: string
+          default: "../"
+        - name: deploy_environment
+          type: string
+        - name: ansistrano_deploy_via
+          type: string
+          default: copy_unarchive
+        tasks:
+          deploy:
+            steps:
+            - task: cicd.deploy.tools.ansible.playbook
+              arguments:
+                title: "Ansistrano deploy {{ .deploy_environment }}"
+                playbook: "deployWithAnsistrano.yml"
+                inventory_file: "inventory/{{ .deploy_environment }}.inventory.yaml"
+                vars: 'ansistrano_deploy_to={{ .ansistrano_deploy_to }} ansistrano_deploy_from={{ .artifact_dir_prefix }}{{ .artifact_dir }}/{{ .artifact_file }} deploy_environment={{ .deploy_environment }} ansistrano_deploy_via={{ .ansistrano_deploy_via }}'

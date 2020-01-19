@@ -1,0 +1,4 @@
+rsync
+openssh
+openssh-client
+python3

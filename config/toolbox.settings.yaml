@@ -1,0 +1,18 @@
+config:
+  libraries:
+    params:
+      config_context_prefix:
+      - .toolbox
+    cicd:
+      params:
+        config_context_prefix:
+        - cicd
+        - .toolbox.cicd
+        env:
+          VARIANT_CONFIG_DIR: .
+      deploy:
+        params:
+          config_context_prefix:
+          - .toolbox.cicd.deploy
+          cmd: deploy
+
