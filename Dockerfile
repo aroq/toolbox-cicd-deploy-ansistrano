@@ -1,6 +1,6 @@
-ARG ANSIBLE_VERSION=2.9.3
-
 FROM aroq/toolbox
+
+ARG ANSIBLE_VERSION=2.9.3
 
 COPY Dockerfile.packages.txt /etc/apk/packages.txt
 RUN apk add --no-cache --update $(grep -v '^#' /etc/apk/packages.txt)
