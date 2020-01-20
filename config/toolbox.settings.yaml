@@ -1,6 +1,8 @@
 config:
   libraries:
     params:
+      tool_dirs:
+      - toolbox/.toolbox/deps/toolbox-cicd-deploy-ansistrano
       config_context_prefix:
       - .toolbox
     cicd:

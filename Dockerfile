@@ -31,4 +31,6 @@ RUN apk --update add --virtual .build-deps \
     rm -rf /var/cache/apk/*
 
 # Install ansistrano.
-RUN ansible-galaxy install ansistrano.deploy,${ANSISTRANO_DEPLOY_VERSION} ansistrano.rollback,${ANSISTRANO_ROLLBACK_VERSION}
+RUN ansible-galaxy install \
+  ansistrano.deploy,${ANSISTRANO_DEPLOY_VERSION} \
+  ansistrano.rollback,${ANSISTRANO_ROLLBACK_VERSION}
